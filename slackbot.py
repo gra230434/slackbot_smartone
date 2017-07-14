@@ -1,4 +1,3 @@
-import os
 import time
 import settings
 from slackclient import SlackClient
@@ -11,6 +10,7 @@ TOKEN = settings.LACK_BOT_TOKEN
 # constants
 AT_BOT = "<@" + BOT_ID + ">"
 EXAMPLE_COMMAND = "do"
+REPEAT_COMMAND = "repeat"
 
 # instantiate Slack & Twilio clients
 slack_client = SlackClient(TOKEN)
@@ -26,6 +26,8 @@ def handle_command(command, channel):
                "* command with numbers, delimited by spaces."
     if command.startswith(EXAMPLE_COMMAND):
         response = "Sure...write some more code then I can do that!"
+    elif command.startswith(REPEAT_COMMAND):
+        response = command
     slack_client.api_call("chat.postMessage", channel=channel,
                           text=response, as_user=True)
 
@@ -47,7 +49,7 @@ def parse_slack_output(slack_rtm_output):
 
 
 if __name__ == "__main__":
-    READ_WEBSOCKET_DELAY = 1 # 1 second delay between reading from firehose
+    READ_WEBSOCKET_DELAY = 1  # 1 second delay between reading from firehose
     if slack_client.rtm_connect():
         print("StarterBot connected and running!")
         while True:

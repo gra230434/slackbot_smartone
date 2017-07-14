@@ -2,7 +2,7 @@ import settings
 from slackclient import SlackClient
 
 TOKEN = settings.LACK_BOT_TOKEN
-BOT_NAME = 'smartbot'
+BOT_NAME = settings.BOT_NAME
 
 slack_client = SlackClient(TOKEN)
 
