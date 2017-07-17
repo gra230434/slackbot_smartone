@@ -1,3 +1,4 @@
+# /usr/bin/python3
 import time
 import settings
 from slackclient import SlackClient
@@ -11,6 +12,7 @@ TOKEN = settings.LACK_BOT_TOKEN
 AT_BOT = "<@" + BOT_ID + ">"
 EXAMPLE_COMMAND = "do"
 REPEAT_COMMAND = "repeat"
+ISLIFE_COMMAND = "islive"
 
 # instantiate Slack & Twilio clients
 slack_client = SlackClient(TOKEN)
