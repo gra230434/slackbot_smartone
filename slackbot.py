@@ -1,7 +1,12 @@
 # /usr/bin/python3
+
 import time
 import settings
+
 from slackclient import SlackClient
+from Functions.general import repeatcommand
+from Functions.howabout import islive
+from Functions.howabout import islivetogoogle
 
 
 # starterbot's ID as an environment variable
@@ -29,7 +34,19 @@ def handle_command(command, channel):
     if command.startswith(EXAMPLE_COMMAND):
         response = "Sure...write some more code then I can do that!"
     elif command.startswith(REPEAT_COMMAND):
-        response = command
+        response = repeatcommand(command)
+    elif command.startswith(ISLIFE_COMMAND):
+        commandList = command.split(' ')
+        if len(commandList) > 1:
+            if islive(commandList[1]):
+                response = "{} is alive".format(commandList[1])
+            else:
+                response = "ERROR: {} is not alive".format(commandList[1])
+        else:
+            if islivetogoogle():
+                response = "We can connect 8.8.8.8"
+            else:
+                response = "ERROR: We cannot connect 8.8.8.8"
     slack_client.api_call("chat.postMessage", channel=channel,
                           text=response, as_user=True)
 
