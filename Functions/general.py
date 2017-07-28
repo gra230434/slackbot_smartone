@@ -7,3 +7,7 @@ def repeatcommand(command):
     for val in code[2:]:
         recommand = "{} {}".format(recommand, val)
     return recommand
+
+
+def sayhello():
+    pass

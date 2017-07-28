@@ -16,3 +16,17 @@ def islive(host):
         return True
     else:
         return False
+
+
+def islivecommand(command):
+    commandList = command.split(' ')
+    if len(commandList) > 1:
+        if islive(commandList[1]):
+            return "{} is alive".format(commandList[1])
+        else:
+            return "ERROR: {} is not alive".format(commandList[1])
+    else:
+        if islivetogoogle():
+            return "We can connect with 8.8.8.8"
+        else:
+            return "ERROR: We cannot connect 8.8.8.8"

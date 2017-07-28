@@ -5,8 +5,7 @@ import settings
 
 from slackclient import SlackClient
 from Functions.general import repeatcommand
-from Functions.howabout import islive
-from Functions.howabout import islivetogoogle
+from Functions.howabout import islivecommand
 
 
 # starterbot's ID as an environment variable
@@ -15,9 +14,12 @@ TOKEN = settings.LACK_BOT_TOKEN
 
 # constants
 AT_BOT = "<@" + BOT_ID + ">"
-EXAMPLE_COMMAND = "do"
+EXAMPLE_COMMAND = "HI"
 REPEAT_COMMAND = "repeat"
+HOSTTS_COMMAND = "host"
+USERTS_COMMAND = "user"
 ISLIFE_COMMAND = "islive"
+HOWABO_COMMAND = "howabout"
 
 # instantiate Slack & Twilio clients
 slack_client = SlackClient(TOKEN)
@@ -33,20 +35,14 @@ def handle_command(command, channel):
                "* command with numbers, delimited by spaces."
     if command.startswith(EXAMPLE_COMMAND):
         response = "Sure...write some more code then I can do that!"
+    elif command.startswith(HOSTTS_COMMAND):
+        response =
+    elif command.startswith(USERTS_COMMAND):
+        response =
     elif command.startswith(REPEAT_COMMAND):
         response = repeatcommand(command)
     elif command.startswith(ISLIFE_COMMAND):
-        commandList = command.split(' ')
-        if len(commandList) > 1:
-            if islive(commandList[1]):
-                response = "{} is alive".format(commandList[1])
-            else:
-                response = "ERROR: {} is not alive".format(commandList[1])
-        else:
-            if islivetogoogle():
-                response = "We can connect 8.8.8.8"
-            else:
-                response = "ERROR: We cannot connect 8.8.8.8"
+        response = islivecommand(command)
     slack_client.api_call("chat.postMessage", channel=channel,
                           text=response, as_user=True)
 
