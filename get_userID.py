@@ -1,4 +1,6 @@
+#!/usr/bin/python3
 import settings
+
 from slackclient import SlackClient
 
 TOKEN = settings.LACK_BOT_TOKEN
@@ -14,6 +16,9 @@ if __name__ == "__main__":
         users = api_call.get('members')
         for user in users:
             if 'name' in user and user.get('name') == BOT_NAME:
-                print("Bot ID for '" + user['name'] + "' is " + user.get('id'))
+                a = "ID for {} is {}".formar(user['name'], user.get('id'))
+                print(a)
+            else:
+                print("error")
     else:
         print("could not find bot user with the name " + BOT_NAME)
