@@ -38,14 +38,30 @@ def CheckIPorDomain(HOST):
         return False
 
 
+def ExtractHostname(HOST):
+    if HOST.find("://") > -1:
+        hostname = HOST.split('/')[2]
+    else:
+        hostname = HOST.split('/')[0]
+    hostname = hostname.split(':')[0]
+    hostname = hostname.split('?')[0]
+    return hostname
+
+
 def CreateKeyname(HOST):
+    """
+    IP input and return HOST_XXX_XXX_XXX_XXX
+    140.115.31.245 return HOST_140_115_31_245
+    blog.technologyofkevin.com return HOST_blog_technologyofkevin_com
+    """
     if CheckIPorDomain(HOST):
         tmp = HOST.split(".")
-        KEYNAME = "HOST_{}_{}".format(tmp[2], tmp[3])
+        keyname = "HOST_{}_{}".format(tmp[2], tmp[3])
     else:
-        tmp = HOST.replace(".", "_")
-        KEYNAME = "HOST_{}".format(tmp)
-    return KEYNAME
+        hostname = ExtractHostname(HOST)
+        tmp = hostname.replace(".", "_")
+        keyname = "HOST_{}".format(tmp)
+    return keyname
 
 
 class HostCommand(object):
@@ -54,24 +70,28 @@ class HostCommand(object):
         super(HostCommand, self).__init__()
         self.dirpath = os.path.dirname(os.path.realpath(__file__))
         self.filepath = os.path.join(self.dirpath, 'trust.conf')
-        
-        
-def AddHost(HOST):
-    dir_path = os.path.dirname(os.path.realpath(__file__))
-    filepath = os.path.join(dir_path, 'trust.conf')
-    conf = configparser.ConfigParser()
-    conf.read(filepath)
-    if CheckCanInsert(conf, filepath):
-        KEYNAME = CreateKeyname(HOST)
+        if not self.ReadConf():
+            return False, 'error_1'
+
+    def ReadConf(self):
+        conf = configparser.ConfigParser()
+        if os.path.isfile(self.filepath):
+            conf = configparser.ConfigParser()
+            self.conf = conf.read(self.filepath)
+            return True
+        else:
+            return False
+
+    def AddHost(self, HOST):
+        if CheckCanInsert(self.conf, self.filepath):
+            keyname = CreateKeyname(HOST)
+            pass
+
+    def RemoveHost():
         pass
 
-
-def RemoveHost():
-    pass
-
-
-def CheckHost():
-    pass
+    def CheckHost():
+        pass
 
 
 def main():
