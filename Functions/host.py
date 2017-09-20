@@ -7,9 +7,7 @@ roles = "^(([0-9]|[1-9][0-9]|1[0-9]{2}|2[0-4][0-9]|25[0-5])\.)\
 {3}([0-9]|[1-9][0-9]|1[0-9]{2}|2[0-4][0-9]|25[0-5])$"
 
 
-def TrustHostExist(filepath):
-    conf = configparser.ConfigParser()
-    conf.read(filepath)
+def TrustHostExist(conf, filepath):
     sections = conf.sections()
     if 'trusthost' in sections:
         return True
@@ -17,10 +15,13 @@ def TrustHostExist(filepath):
         return False
 
 
-def CheckCanInsert(conf, filepath):
+def CheckHostExist(conf, filepath, keyname):
     if os.path.isfile(filepath):
         if TrustHostExist(conf, filepath):
-            return True
+            if keyname in conf['trusthost']:
+                return True
+            else:
+                return False
         else:
             return False
     else:
@@ -74,7 +75,6 @@ class HostCommand(object):
             return False, 'error_1'
 
     def ReadConf(self):
-        conf = configparser.ConfigParser()
         if os.path.isfile(self.filepath):
             conf = configparser.ConfigParser()
             self.conf = conf.read(self.filepath)
@@ -83,16 +83,26 @@ class HostCommand(object):
             return False
 
     def AddHost(self, HOST):
-        if CheckCanInsert(self.conf, self.filepath):
-            keyname = CreateKeyname(HOST)
+        keyname = CreateKeyname(HOST)
+        if CheckCanInsert(self.conf, self.filepath, keyname):
             pass
 
-    def RemoveHost():
+    def RemoveHost(self, HOST):
+        keyname = CreateKeyname(HOST)
+        if not CheckCanInsert(self.conf, self.filepath, keyname):
+            pass
+
+    def CheckHost(self, HOST):
+        keyname = CreateKeyname(HOST)
         pass
 
-    def CheckHost():
+    def ListAllHost(self, HOST):
         pass
 
 
 def main():
     pass
+
+
+if __name__ == '__main__':
+    main()
