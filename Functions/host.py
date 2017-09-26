@@ -64,9 +64,9 @@ def CreateKeyname(HOST):
     return keyname
 
 
-class HostCommand(object):
+class HostCommandConf(object):
     """docstring for HostCommand"""
-    def __init__(self, filename):
+    def __init__(self, filename='trust.conf'):
         super(HostCommand, self).__init__()
         self.dirpath = os.path.dirname(os.path.realpath(__file__))
         self.filepath = os.path.join(self.dirpath, filename)
@@ -143,11 +143,26 @@ class HostCommand(object):
             print("Host: {}, isMask: {}".format(item[0], item[1]))
 
 
+def HostCommand(command):
+    commandList = command.split(' ')
+    hostconfig = HostCommandConf()
+    if commandList[1] is 'add':
+        return hostconfig.AddHost(commandList[2])
+    elif commandList[1] is 'remove':
+        return hostconfig.RemoveHost(commandList[2])
+    elif commandList[1] is 'mask':
+        return hostconfig.MaskHost(commandList[2])
+    elif commandList[1] is 'unmask':
+        return hostconfig.UnmaskHost(commandList[2])
+    else:
+        return hostconfig.ListAllHost()
+
+
 def main():
     filename = 'test_trust.conf'
     IPhost = '140.115.31.245'
     Domainhost = 'blog.technologyofkevin.com'
-    hostconfig = HostCommand(filename)
+    hostconfig = HostCommandConf(filename)
     print(hostconfig.AddHost(IPhost))
     print(hostconfig.AddHost(Domainhost))
     print(hostconfig.ListAllHost())
