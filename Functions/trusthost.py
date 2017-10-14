@@ -1,3 +1,6 @@
+#!/usr/bin/python3
+# -*- coding: utf-8 -*-
+
 import re
 import os
 import configparser
@@ -82,7 +85,7 @@ class HostCommandConf(object):
             else:
                 return False, 'host_error_2'
         else:
-            return False, 'host_error_2'
+            return False, 'host_error_1'
 
     def AddHost(self, HOST):
         keyname = CreateKeyname(HOST)
@@ -158,6 +161,7 @@ def HostCommand(command):
         return hostconfig.ListAllHost()
 
 
+# Test class
 def main():
     filename = 'test_trust.conf'
     IPhost = '140.115.31.245'
