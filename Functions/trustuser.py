@@ -1,6 +1,7 @@
 #!/usr/bin/python3
 # -*- coding: utf-8 -*-
 
+import re
 import os
 import sys
 import configparser
@@ -49,10 +50,18 @@ def CheckUserExist(conf, filepath, user):
 def CheckUserExistAndGetID(conf, filepath, user):
     conf.read(filepath)
     if user in conf['userlist']:
-        userid = conf['userlist']['user']
+        userid = conf['userlist'][user]
         return True, userid
     else:
         return False, 'user_error_6'
+
+
+def ValueAuthority(authority):
+    roles = "^([1-5]){1}$"
+    if re.match(roles, authority):
+        return True
+    else:
+        return False
 
 
 class UserCommandConf(object):
@@ -90,31 +99,51 @@ class UserCommandConf(object):
         else:
             return False, 'user_error_1'
 
-    def AddUser(self, USER):
-        userID = CheckUserExistAndGetID(self.conf, self.filepath, user)
-        if not CheckUserExist(self.conf, self.filepath, userID):
-            self.conf.set('trustuser', userID, 'true')
+    def AddUser(self, USER, authority):
+        if not ValueAuthority(authority):
+            return False, 'user_error_8'
+        check, userID = CheckUserExistAndGetID(self.conf, self.filepath, USER)
+        if (check is True and
+                not CheckUserExist(self.conf, self.filepath, userID)):
+            self.conf.set('trustuser', userID, authority)
             with open(self.filepath, 'w') as configfile:
                 self.conf.write(configfile)
             return True, 'user_success_1'
-        else:
-            keyvalue = self.conf.getboolean('trusthost', userID)
-            if keyvalue is False:
+        elif (check is True and
+                CheckUserExist(self.conf, self.filepath, userID)):
+            keyvalue = self.conf.getint('trusthost', userID)
+            if keyvalue == 0:
                 if self.UnmaskUser(USER) is True:
                     return True, 'user_success_2'
                 else:
                     return False, 'user_error_4'
             return False, 'user_error_3'
+        elif check is False:
+            return False, 'user_error_7'
+        else:
+            return False, 'user_error'
 
-    def RemoveHost(self, HOST):
-        keyname = CreateKeyname(HOST)
-        if CheckHostExist(self.conf, self.filepath, keyname):
-            self.conf.remove_option('trusthost', keyname)
+    def RemoveHost(self, USER):
+        check, userID = CheckUserExistAndGetID(self.conf, self.filepath, USER)
+        if (check is True and
+                CheckUserExist(self.conf, self.filepath, userID)):
+            self.conf.remove_option('trustuser', userID)
             with open(self.filepath, 'w') as configfile:
                 self.conf.write(configfile)
             return True, 'host_success_3'
+        elif (check is True and
+                not CheckUserExist(self.conf, self.filepath, userID)):
+            return True, 'host_success_3'
+        elif check is False:
+            userfile = self.conf.read(self.filepath)
+            userlist = userfile['userlist']
+            usertrust = userfile['trustuser']
+            for user in usertrust:
+                if user not in userlist:
+                    self.conf.remove_option('trustuser', userID)
+                pass
         else:
-            return False, 'host_error_4'
+            return False, 'user_error'
 
     def MaskHost(self, HOST):
         keyname = CreateKeyname(HOST)
