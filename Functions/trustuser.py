@@ -35,15 +35,24 @@ def UserListExist(conf, filepath):
     pass
 
 
-def CheckUserExist(conf, filepath, keyname):
+def CheckUserExist(conf, filepath, user):
     if TrustUserExist(conf, filepath):
         conf.read(filepath)
-        if keyname in conf['trustuser']:
+        if user in conf['trustuser']:
             return True
         else:
             return False
     else:
         return False
+
+
+def CheckUserExistAndGetID(conf, filepath, user):
+    conf.read(filepath)
+    if user in conf['userlist']:
+        userid = conf['userlist']['user']
+        return True, userid
+    else:
+        return False, 'user_error_6'
 
 
 class UserCommandConf(object):
@@ -67,12 +76,77 @@ class UserCommandConf(object):
         else:
             return False, 'user_error_1'
 
-    def UserListUpdate():
+    def UserListUpdate(self):
         sc = SlackClient(TOKEN)
         api_call = sc.api_call("users.list")
         if api_call.get('ok'):
             userlist = api_call.get('members')
-        pass
+            for user in userlist:
+                if not user['deleted']:
+                    self.conf.set('userlist', user['name'], user.get('id'))
+            with open(self.filepath, 'w') as configfile:
+                self.conf.write(configfile)
+            return True, 'user_success_1'
+        else:
+            return False, 'user_error_1'
+
+    def AddUser(self, USER):
+        userID = CheckUserExistAndGetID(self.conf, self.filepath, user)
+        if not CheckUserExist(self.conf, self.filepath, userID):
+            self.conf.set('trustuser', userID, 'true')
+            with open(self.filepath, 'w') as configfile:
+                self.conf.write(configfile)
+            return True, 'user_success_1'
+        else:
+            keyvalue = self.conf.getboolean('trusthost', userID)
+            if keyvalue is False:
+                if self.UnmaskUser(USER) is True:
+                    return True, 'user_success_2'
+                else:
+                    return False, 'user_error_4'
+            return False, 'user_error_3'
+
+    def RemoveHost(self, HOST):
+        keyname = CreateKeyname(HOST)
+        if CheckHostExist(self.conf, self.filepath, keyname):
+            self.conf.remove_option('trusthost', keyname)
+            with open(self.filepath, 'w') as configfile:
+                self.conf.write(configfile)
+            return True, 'host_success_3'
+        else:
+            return False, 'host_error_4'
+
+    def MaskHost(self, HOST):
+        keyname = CreateKeyname(HOST)
+        if CheckHostExist(self.conf, self.filepath, keyname):
+            self.conf.set('trusthost', keyname, 'false')
+            with open(self.filepath, 'w') as configfile:
+                self.conf.write(configfile)
+            return True, 'host_success_2'
+        else:
+            return False, 'host_error_4'
+
+    def UnmaskHost(self, HOST):
+        keyname = CreateKeyname(HOST)
+        if CheckHostExist(self.conf, self.filepath, keyname):
+            self.conf.set('trusthost', keyname, 'true')
+            with open(self.filepath, 'w') as configfile:
+                self.conf.write(configfile)
+            return True, 'host_success_2'
+        else:
+            return False, 'host_error_4'
+
+    def CheckHost(self, HOST):
+        keyname = CreateKeyname(HOST)
+        if CheckHostExist(self.conf, self.filepath, keyname):
+            ksyvalue = self.conf.getboolean('trusthost', keyname)
+            return True, "{}=> key:{} value:{}".format(HOST, keyname, ksyvalue)
+        else:
+            return False, 'host_error_4'
+
+    def ListAllHost(self):
+        for item in self.conf.items('trusthost'):
+            print("Host: {}, isMask: {}".format(item[0], item[1]))
 
 
 def HostCommand(command):
