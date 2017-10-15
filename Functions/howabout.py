@@ -1,4 +1,22 @@
+#!/usr/bin/python3
+# -*- coding: utf-8 -*-
+
 import os
+import configparser
+
+
+def ReadHostConf(filename='trust.conf'):
+    conf = configparser.ConfigParser()
+    conf.read(filename)
+    return conf.options('trusthost')
+
+
+def HostCheckConf(host):
+    hostlist = ReadHostConf()
+    if host in hostlist:
+        return True
+    else:
+        return False
 
 
 def islivetogoogle():
@@ -21,10 +39,13 @@ def islive(host):
 def islivecommand(command):
     commandList = command.split(' ')
     if len(commandList) > 1:
-        if islive(commandList[1]):
-            return "{} is alive".format(commandList[1])
+        if HostCheckConf(commandList[1]):
+            if islive(commandList[1]):
+                return "{} is alive".format(commandList[1])
+            else:
+                return "ERROR: {} is not alive".format(commandList[1])
         else:
-            return "ERROR: {} is not alive".format(commandList[1])
+            return "ERROR: {} is not in TrustHost".format(commandList[1])
     else:
         if islivetogoogle():
             return "We can connect with 8.8.8.8"
