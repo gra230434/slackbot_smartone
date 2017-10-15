@@ -97,7 +97,7 @@ class HostCommandConf(object):
         else:
             keyvalue = self.conf.getboolean('trusthost', keyname)
             if keyvalue is False:
-                if self.UnmaskHost(HOST) is True:
+                if self.UnmaskHost(HOST)[0] is True:
                     return True, 'host_success_2'
                 else:
                     return False, 'host_error_4'
